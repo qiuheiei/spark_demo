@@ -1,0 +1,312 @@
+create external table if not exists yx_mds.mds_log_api_proce
+(
+    tag_id  String  comment 'tagid',
+    app_key  String  comment 'appkey',
+    log_time  String  comment '日志时间',
+    http_proxy_process  String  comment 'http过程代理访问工序数',
+    http_proxy_total_time_consuming  String  comment 'http过程代理访问总耗时（毫秒）',
+    http_proxy_detail  String  comment 'http过程代理明细',
+    method  String  comment '服务名称',
+    request_ip  String  comment '访问者IP',
+    request_params  String  comment '请求入参',
+    response_code  String  comment '响应状态码',
+    response_data  String  comment '响应结果',
+    response_message  String  comment '响应信息',
+    server  String  comment '服务器地址xx.xx.xx.xx:xx',
+    time_consuming  String  comment '方法耗时(毫秒)',
+    hour  String  comment '小时',
+    user_service_information_fuser_information String comment '用户信息描述',
+    user_service_information_fuser_name String comment '联系人',
+    user_service_information_fuser_text String comment '用户名称',
+    user_service_information_fuser_mail String comment '用户安全邮箱',
+    user_service_information_fservice String comment '所选服务',
+    user_service_information_fservice_validity_type String comment '是否有限制时间',
+    user_service_information_fservice_validity_begin String comment 'appkey有效期(开始日期)',
+    user_service_information_fservice_validity_end String comment 'appkey有效期(结束日期)',
+    user_service_information_fip_white_list String comment 'ip白名单',
+    user_service_information_fstate String comment '用户信息状态',
+    user_service_information_fcreater String comment '用户信息创建人',
+    user_service_information_fcreate_time String comment '用户信息创建时间',
+    user_service_information_fupdater String comment '用户信息修改人',
+    user_service_information_fupdate_time String comment '用户信息更新时间',
+    user_information_fuser_type String comment '公司用户类别',
+    user_information_fuser_information String comment '公司用户信息描述',
+    user_information_fuser_text String comment '公司用户名称',
+    user_information_fuser_name String comment '公司联系人',
+    user_information_fuser_mail String comment '公司信息用户安全邮箱地址',
+    user_information_fstate String comment '公司信息状态',
+    user_information_fcreater String comment '公司信息创建人',
+    user_information_fcreate_time String comment '公司信息创建时间',
+    user_information_fupdater String comment '公司信息修改人',
+    user_information_fupdate_time String comment '公司信息更新时间',
+    service_information_fservice_name String comment '服务名称',
+    service_information_fdevelopers String comment '服务开发人员',
+    service_information_fdevelopers_mail String comment '服务开发人员邮箱',
+    service_information_ffunction_description String comment '服务描述',
+    service_information_faccess_address String comment '服务访问地址',
+    service_information_fparameter_description String comment '服务参数描述',
+    service_information_faccess_policy String comment '服务访问策略',
+    service_information_fcomplete_example String comment '服务完整示例',
+    service_information_fstate String comment '服务状态',
+    service_information_fcreater String comment '服务创建人',
+    service_information_fcreate_time String comment '服务创建时间',
+    service_information_fupdater String comment '服务修改人',
+    service_information_fupdate_time String comment '服务更新时间',
+    service_group_information_fservice_group_name String comment '服务组名称',
+    service_group_information_fdescription_information String comment '服务组描述',
+    service_group_information_fservice_providers String comment '服务组提供方',
+    service_group_information_fmail String comment '服务组邮箱',
+    service_group_information_fstate String comment '服务组状态',
+    service_group_information_fcreater String comment '服务组创建人',
+    service_group_information_fcreate_time String comment '服务组创建时间',
+    service_group_information_fupdater String comment '服务组修改人',
+    service_group_information_fupdate_time String comment '服务组更新时间'
+) COMMENT 'bi日志表'
+PARTITIONED BY ( dt STRING)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.orc.OrcSerde'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
+
+
+create  external table if not exists yx_ads.ads_log_api_proce_service_info
+(
+     service_name String comment '服务名称'
+     ,`hour`  String comment '小时'
+     , unique_ip_count Bigint comment 'ip访问个数'
+     , all_count Bigint comment '总访问个数'
+     , all_service_consuming_second Bigint comment '服务总耗时(秒)'
+     , avg_service_consuming_second DECIMAL(16,2) comment '服务平均耗时(秒)'
+     , all_service_succ_count Bigint comment '访问服务成功个数'
+     , all_service_fail_count Bigint comment '访问服务失败个数'
+     , service_succ_rate DECIMAL(16,2)  comment '访问服务成功率'
+    
+) COMMENT 'bi日志服务统计表'
+PARTITIONED BY ( dt STRING)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.orc.OrcSerde'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
+
+
+
+
+
+
+select count(*) from yx_dw_test.tmp_mds_api_proce_log
+
+ALTER TABLE yx_dw_test.tmp_mds_api_proce_log DROP IF EXISTS PARTITION(dt = '2022-05-26')
+
+
+spark-sql -conf 'set hive.merge.mapfiles=true' 
+
+
+--- 正式使用
+
+insert overwrite table yx_dw_test.tmp_mds_api_proce_log partition (dt='2022-05-26')
+select
+          nvl(t1.tagid ,'')                       as tag_id                                             -- tagid
+        , nvl(t1.appKey ,'')                      as app_key                                            -- appkey
+        , nvl(t1.logtime ,'')                     as log_time                                           -- 日志时间
+        , nvl(t1.httpProxyProcess ,'')            as http_proxy_process                                 -- http过程代理访问工序数
+        , nvl(t1.httpProxyTotalTimeConsuming ,'') as http_proxy_total_time_consuming                    -- http过程代理访问总耗时（毫秒）
+        , nvl(t1.httpProxyDetail ,'')             as http_proxy_detail                                  -- http过程代理明细
+        , nvl(t1.method ,'')                      as method                                             -- 服务名称
+        , nvl(t1.requestIp ,'')                   as request_ip                                         -- 访问者IP
+        , nvl(t1.requestParams ,'')               as request_params                                     -- 请求入参
+        , nvl(t1.responseCode ,'')                as response_code                                      -- 响应状态码
+        , nvl(t1.responseData ,'')                as response_data                                      -- 响应结果
+        , nvl(t1.responseMessage ,'')             as response_message                                   -- 响应信息
+        , nvl(t1.server ,'')                      as server                                             -- 服务器地址xx.xx.xx.xx:xx
+        , nvl(t1.timeConsuming ,'')               as time_consuming                                     -- 方法耗时(毫秒)
+        , nvl(t1.hour ,'')                        as hour                                               -- 小时
+        , nvl(t2.fuser_information ,'')           as user_service_information_fuser_information         -- 用户信息描述
+        , nvl(t2.fuser_name ,'')                  as user_service_information_fuser_name                -- 联系人
+        , nvl(t2.fuser_text ,'')                  as user_service_information_fuser_text                -- 用户名称
+        , nvl(t2.fuser_mail ,'')                  as user_service_information_fuser_mail                -- 用户安全邮箱
+        , nvl(t2.fservice ,'')                    as user_service_information_fservice                  -- 所选服务
+        , nvl(t2.fservice_validity_type ,'')      as user_service_information_fservice_validity_type    -- 是否有限制时间
+        , nvl(t2.fservice_validity_begin,'')     as user_service_information_fservice_validity_begin   -- appkey有效期(开始日期)
+        , nvl(t2.fservice_validity_end,'')      as user_service_information_fservice_validity_end     -- appkey有效期(结束日期)
+        , nvl(t2.fip_white_list ,'')              as user_service_information_fip_white_list            -- ip白名单
+        , nvl(t2.fstate ,'')                      as user_service_information_fstate                    -- 用户信息状态
+        , nvl(t2.fcreater ,'')                    as user_service_information_fcreater                  -- 用户信息创建人
+        , nvl(t2.fcreate_time,'')                as user_service_information_fcreate_time              -- 用户信息创建时间
+        , nvl(t2.fupdater ,'')                    as user_service_information_fupdater                  -- 用户信息修改人
+        , nvl(t2.fupdate_time,'')                as user_service_information_fupdate_time              -- 用户信息更新时间
+        , nvl(t3.fuser_type ,'')                  as user_information_fuser_type                        -- 公司用户类别
+        , nvl(t3.fuser_information ,'')           as user_information_fuser_information                 -- 公司用户信息描述
+        , nvl(t3.fuser_text ,'')                  as user_information_fuser_text                        -- 公司用户名称
+        , nvl(t3.fuser_name ,'')                  as user_information_fuser_name                        -- 公司联系人
+        , nvl(t3.fuser_mail ,'')                  as user_information_fuser_mail                        -- 公司信息用户安全邮箱地址
+        , nvl(t3.fstate ,'')                      as user_information_fstate                            -- 公司信息状态
+        , nvl(t3.fcreater ,'')                    as user_information_fcreater                          -- 公司信息创建人
+        , nvl(t3.fcreate_time,'')                as user_information_fcreate_time                      -- 公司信息创建时间
+        , nvl(t3.fupdater ,'')                   as user_information_fupdater                          -- 公司信息修改人
+        , nvl(t3.fupdate_time,'')                as user_information_fupdate_time                      -- 公司信息更新时间
+        , nvl(t4.fservice_name ,'')               as service_information_fservice_name                  -- 服务名称
+        , nvl(t4.fdevelopers ,'')                 as service_information_fdevelopers                    -- 服务开发人员
+        , nvl(t4.fdevelopers_mail ,'')            as service_information_fdevelopers_mail               -- 服务开发人员邮箱
+        , nvl(t4.ffunction_description ,'')       as service_information_ffunction_description          -- 服务描述
+        , nvl(t4.faccess_address ,'')             as service_information_faccess_address                -- 服务访问地址
+        , nvl(t4.fparameter_description ,'')      as service_information_fparameter_description         -- 服务参数描述
+        , nvl(t4.faccess_policy ,'')              as service_information_faccess_policy                 -- 服务访问策略
+        , nvl(t4.fcomplete_example ,'')           as service_information_fcomplete_example              -- 服务完整示例
+        , nvl(t4.fstate ,'')                      as service_information_fstate                         -- 服务状态
+        , nvl(t4.fcreater ,'')                    as service_information_fcreater                       -- 服务创建人
+        , nvl(t4.fcreate_time,'')               as service_information_fcreate_time                   -- 服务创建时间
+        , nvl(t4.fupdater ,'')                    as service_information_fupdater                       -- 服务修改人
+        , nvl(t4.fupdate_time,'')               as service_information_fupdate_time                   -- 服务更新时间
+        , nvl(t5.fservice_group_name ,'')         as service_group_information_fservice_group_name      -- 服务组名称
+        , nvl(t5.fdescription_information ,'')    as service_group_information_fdescription_information -- 服务组描述
+        , nvl(t5.fservice_providers ,'')          as service_group_information_fservice_providers       -- 服务组提供方
+        , nvl(t5.fmail ,'')                       as service_group_information_fmail                    -- 服务组邮箱
+        , nvl(t5.fstate ,'')                      as service_group_information_fstate                   -- 服务组状态
+        , nvl(t5.fcreater ,'')                    as service_group_information_fcreater                 -- 服务组创建人
+        , nvl(t5.fcreate_time,'')                as service_group_information_fcreate_time             -- 服务组创建时间
+        , nvl(t5.fupdater ,'')                    as service_group_information_fupdater                 -- 服务组修改人
+        , nvl(t5.fupdate_time,'')                as service_group_information_fupdate_time             -- 服务组更新时间
+        from (
+            select nvl(regexp_replace(tagid, '\\[|\\]', ''), '')                                         as tagid
+            , nvl(split(regexp_replace(logtime, '\\[|\\]', ''), '\\.')[0],'')                                                 as logtime
+            , nvl(get_json_object(content, '$[0].appKey'), '')                                      as `appKey`
+            , nvl(get_json_object(content, '$[0].httpProxyProcess'), -1)                            as `httpProxyProcess`
+            , nvl(get_json_object(content, '$[0].httpProxyTotalTimeConsuming'),-1)                  as `httpProxyTotalTimeConsuming`
+            , nvl(get_json_object(content, '$[0].httpProxyDetail'), '')                             as `httpProxyDetail`
+            , nvl(get_json_object(content, '$[0].method'), '')                                      as `method`
+            , nvl(get_json_object(content, '$[0].requestIp'), '')                                   as `requestIp`
+            , nvl(get_json_object(content, '$[0].requestParams'), '')                               as `requestParams`
+            , nvl(get_json_object(content, '$[0].responseCode'), '')                                as `responseCode`
+            , nvl(get_json_object(content, '$[0].responseData'), '')                                as `responseData`
+            , nvl(get_json_object(content, '$[0].responseMessage'), '')                             as `responseMessage`
+            , nvl(get_json_object(content, '$[0].server'), '')                                      as `server`
+            , nvl(get_json_object(content, '$[0].timeConsuming'), -1)                               as `timeConsuming`
+            , dt
+            , hour
+        from yx_stage.stage_99_api_proce_log
+        where dt = '2022-05-26'
+        ) t1
+        left join
+        (
+        select
+              fpid
+            ,`fuser_information`       -- 信息描述
+            ,`fuser_name`              -- 联系人
+            ,`fuser_text`              -- 用户名称
+            --,fuser_tel                                       -- 用户电话 加密
+            ,`fuser_mail`              -- 用户安全邮箱
+            ,`fappkey`                 -- 请求标识
+            ,`fservice`                -- 所选服务
+            ,`fservice_validity_type`  -- 是否有限制时间
+            ,`fservice_validity_begin` -- appkey有效期(开始日期)
+            ,`fservice_validity_end`   -- appkey有效期(结束日期)
+            ,`fip_white_list`          -- ip白名单
+            ,`fstate`                  -- 状态
+            ,`fcreater`                -- 创建人
+            , `fcreate_time`            -- 创建时间
+            ,`fupdater`                -- 修改人
+            , `fupdate_time`            -- 更新时间
+            --,fuser_tel_mobile_make                           -- 手机号码掩码
+            , dt
+        from yx_ods.ods_41_tb_user_service_information_a -- 用户信息表
+        where dt = '2022-05-26'
+        ) t2 on t1.appkey = t2.fappkey
+        left join
+        (
+        select
+               id                                                                                          -- 用户id
+            ,`fuser_type`        -- 用户类别
+            ,`fuser_information` -- 用户信息描述
+            ,`fuser_text`        -- 用户名称
+            ,`fuser_name`        -- 联系人
+            --,fuser_tel                                           -- 联系电话, 加密
+            ,`fuser_mail`        -- 用户安全邮箱地址
+            ,`fstate`            -- 状态：
+            ,`fcreater`          -- 创建人
+            ,  `fcreate_time`     -- 创建时间
+            ,`fupdater`          -- 修改人
+            ,  `fupdate_time`      -- 更新时间
+            --,fuser_tel_mobile_make                               -- 手机号码掩码
+            , dt
+            from yx_ods.ods_41_tb_user_information_a -- 公司信息表
+        where dt = '2022-05-26'
+        ) t3 on t2.fpid = t3.id
+        left join
+        (
+        select
+               fgroup_id                                                                                        -- 服务组id
+            ,`fservice_name`          -- 服务名称
+            ,`fdevelopers`            -- 开发人员
+            --,fdevelopers_tel                                            -- 开发人员电话 加密
+            ,`fdevelopers_mail`       -- 开发人员邮箱
+            ,`ffunction_description`  -- 服务描述
+            , split(regexp_replace(NVL(faccess_address,''),'[\\s]+|[\\u3000]+|[\,]',''),'method=')[1]                          as `faccess_address`        -- 访问地址
+            ,`fparameter_description` -- 参数描述
+            ,`faccess_policy`         -- 访问策略
+            ,`fcomplete_example`      -- 完整示例
+            ,`fstate`                 -- 状态
+            ,`fcreater`               -- 创建人
+            ,  `fcreate_time`           -- 创建时间
+            ,`fupdater`               -- 修改人
+            ,  `fupdate_time`          -- 更新时间
+        --,fdevelopers_tel_mobile_make                                -- 手机号码掩码
+            , dt
+        from yx_ods.ods_41_tb_service_information_a -- 服务信息表
+        where dt = '2022-05-26'
+        ) t4 on t1.method = t4.faccess_address
+        left join
+        (
+        select
+               id                                                                                                 -- id
+            ,`fservice_group_name`      -- 服务组名称
+            ,`fdescription_information` -- 描述
+            ,`fservice_providers`       -- 服务提供方
+            --,ftel                                                       -- 联系电话 加密
+            ,`fmail`                    -- 邮箱
+            ,`fstate`                   -- 状态
+            ,`fcreater`                 -- 创建人
+            ,  `fcreate_time`             -- 创建时间
+            ,`fupdater`                 -- 修改人
+            , `fupdate_time`             -- 更新时间
+            --,ftel_mobile_make                                           -- 手机号码掩码
+            , dt
+        from yx_ods.ods_41_tb_service_group_information_a --服务组信息
+        where dt = '2022-05-26'
+        ) t5 on t4.fgroup_id = t5.id;
+
+-- 访问的服务指标
+insert  overwrite table  yx_dw_test.tmp_ads_api_proce_log_service_information_hour_info PARTITION(dt = '2022-05-26')
+select
+    service_information_fservice_name
+     ,`hour`
+     ,count(distinct request_ip) as unique_ip_count
+     ,count(request_ip) as all_count
+     ,round(sum(time_consuming / 1000 ),2) as all_methon_time_consuming_second
+     ,round(sum(time_consuming /1000) /count(*),2) as avg_methon_time_consuming_second
+     ,sum(if(response_message = 'success',1,0)) as all_method_succ_count
+     ,sum(if(response_message != 'success',1,0)) as all_method_fail_count
+     ,round(sum(if(response_message = 'success',1,0))/count(*) * 100,2)  as method_succ_rate
+from yx_dw_test.tmp_mds_api_proce_log where dt = '2022-05-26' group by service_information_fservice_name,`hour`
+
+-- 写ck
+CREATE TEMPORARY VIEW tmp_ads_api_proce_service_info
+    USING org.apache.spark.sql.jdbc
+    OPTIONS (
+                driver 'com.clickhouse.jdbc.ClickHouseDriver',
+                url 'jdbc:clickhouse://chproxy.bdp.yxqiche.com:80/yx_ads',
+                dbtable 'ads_log_api_proce_service_info',
+                user 'yixin_etl',
+                password 'jxykHBKR',
+                batchsize '10000'
+);
+insert into  table tmp_ads_api_proce_service_info
+select
+      service_information_fservice_name as service_name
+     ,`hour` as `hour`
+     , unique_ip_count as  unique_ip_count
+     , all_count as all_count
+     , all_methon_time_consuming_second as all_service_consuming_second
+     , avg_methon_time_consuming_second as avg_service_consuming_second
+     , all_method_succ_count as all_service_succ_count
+     , all_method_fail_count as all_service_fail_count
+     , methon_succ_rate as service_succ_rate
+     , dt as dt
+from  yx_dw_test.tmp_ads_api_proce_log_service_information_hour_info

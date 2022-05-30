@@ -1,4 +1,4 @@
-create external table if not exists yx_mds.mds_log_api_proce
+create external table if not exists yx_mds.mds_log_api_proce_detail
 (
     tag_id  String  comment 'tagid',
     app_key  String  comment 'appkey',
@@ -101,7 +101,7 @@ spark-sql -conf 'set hive.merge.mapfiles=true'
 
 --- 正式使用
 
-insert overwrite table yx_dw_test.tmp_mds_api_proce_log partition (dt='2022-05-26')
+insert overwrite table yx_mds.mds_log_api_proce_detail (dt='2022-05-26')
 select
           nvl(t1.tagid ,'')                       as tag_id                                             -- tagid
         , nvl(t1.appKey ,'')                      as app_key                                            -- appkey

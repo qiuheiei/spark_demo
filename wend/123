@@ -1,0 +1,177 @@
+create  TEMPORARY table if not exists tmp_api_proce_log_source (
+
+  `message` STRING
+
+) with (
+  'connector' = 'kafka',
+  'topic' = 'api_proce_log',
+  'properties.bootstrap.servers' = '10.0.4.98:9092,10.0.4.99:9092,10.0.4.100:9092',
+  'properties.group.id' = 'tmp_api_proce_log_source_002',
+  'scan.startup.mode' = 'specific-offsets',
+  'scan.startup.specific-offsets' = 'partition:0,offset:125850000',
+  'format' = 'json'
+);
+
+-- 维表 用户信息表
+CREATE  TEMPORARY TABLE tmp_tb_user_service_information (
+     `id` bigint
+    ,`Fpid` bigint
+    ,`Fuser_information` String -- 信息描述
+    ,`Fuser_name` String -- 联系人
+    ,`Fuser_tel` String 
+    ,`Fuser_mail` String
+    ,`Fappkey` String
+    ,`Fappsecret` String
+    ,`Fstate` String
+    ,`Fcreater` String
+    ,`Fcreate_time` String
+    ,`Fupdater` String
+    ,`Fupdate_time` String
+    ,PRIMARY KEY (`id`) NOT ENFORCED
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:mysql://10.0.9.163:3306/bi_apimanage',
+    'table-name' = 'tb_user_service_information',
+    'username' = 'bi_apimanage_writer',
+    'password' = 'Api^627Hi8k69'
+);
+-- 维表  公司信息表
+CREATE  TEMPORARY TABLE tmp_tb_user_information (
+    `id` bigint
+    ,`Fuser_type` STRING
+    ,`Fuser_information` STRING
+    ,`Fuser_text` STRING
+    ,`Fuser_name` STRING
+    ,`Fuser_tel` STRING
+    ,`Fuser_mail` STRING
+    ,`Fstate` STRING
+    ,`Fcreater` STRING
+    ,`Fcreate_time` STRING
+    ,`Fupdater` STRING
+    ,`Fupdate_time` STRING
+    ,PRIMARY KEY (`id`) NOT ENFORCED
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:mysql://10.0.9.163:3306/bi_apimanage',
+    'table-name' = 'tb_user_information',
+    'username' = 'bi_apimanage_writer',
+    'password' = 'Api^627Hi8k69'
+);
+-- 维表 服务信息表
+CREATE  TEMPORARY TABLE tmp_tb_service_information (
+    `id` bigint
+    ,`Fgroup_id` bigint
+    ,`Fservice_name` STRING
+    ,`Fdevelopers` STRING
+    ,`Fdevelopers_tel` STRING
+    ,`Fdevelopers_mail` STRING
+    ,`Ffunction_description` STRING
+    ,`Faccess_address` STRING
+    ,`Fparameter_description` STRING
+    ,`Fcomplete_example` STRING
+    ,`Fstate` STRING
+    ,`Fcreater` STRING
+    ,`Fcreate_time` STRING
+    ,`Fupdater` STRING
+    ,`Fupdate_time` STRING
+    ,PRIMARY KEY (`id`) NOT ENFORCED
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:mysql://10.0.9.163:3306/bi_apimanage',
+    'table-name' = 'tb_service_information',
+    'username' = 'bi_apimanage_writer',
+    'password' = 'Api^627Hi8k69'
+);
+-- 维表 服务组信息表
+CREATE  TEMPORARY TABLE tb_service_group_information (
+    `id` bigint
+    ,`Fservice_group_name` STRING
+    ,`Fdescription_information` STRING
+    ,`Fservice_providers` STRING
+    ,`Ftel` STRING
+    ,`Fmail` STRING
+    ,`Fstate` STRING
+    ,`Fcreater` STRING
+    ,`Fcreate_time` STRING
+    ,`Fupdater` STRING
+    ,`Fupdate_time` STRING
+    , PRIMARY KEY (`id`) NOT ENFORCED
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:mysql://10.0.9.163:3306/bi_apimanage',
+    'table-name' = 'tb_service_group_information',
+    'username' = 'bi_apimanage_writer',
+    'password' = 'Api^627Hi8k69'
+);
+
+
+
+create  TEMPORARY table if not exists tmp_api_proce_log_source (
+
+   	 `tagid` String
+    ,`logtime` String
+    ,`appKey` String
+    ,`httpProxyProcess` String
+    ,`httpProxyTotalTimeConsuming` String
+    ,`httpProxyDetail` String
+    ,`method` String
+    ,`requestIp` String
+    ,`requestParams` String
+    ,`responseCode` String
+    ,`responseData` String
+    ,`responseMessage` String
+    ,`server` String
+    ,`timeConsuming` String
+
+    ,`user_service_information_fuser_information` String
+    ,`user_service_information_fuser_name` String
+    ,`user_service_information_fuser_mail` String
+    ,`user_service_information_fstate` String
+    ,`user_service_information_fcreater` String
+    ,`user_service_information_fcreate_time` String
+    ,`user_service_information_fupdater` String
+    ,`user_service_information_fupdate_time` String
+
+    ,`user_information_fuser_type` STRING
+    ,`user_information_fuser_information` STRING
+    ,`user_information_fuser_text` STRING
+    ,`user_information_fuser_name` STRING
+    ,`user_information_fuser_mail` STRING
+    ,`user_information_fstate` STRING
+    ,`user_information_fcreater` STRING
+    ,`user_information_fcreate_time` STRING
+    ,`user_information_fupdater` STRING
+    ,`user_information_fupdate_time` STRING
+
+    ,`service_information_fservice_name` STRING
+    ,`service_information_fdevelopers` STRING
+    ,`service_information_fdevelopers_mail` STRING
+    ,`service_information_ffunction_description` STRING
+    ,`service_information_faccess_address` STRING
+    ,`service_information_fparameter_description` STRING
+    ,`service_information_fcomplete_example` STRING
+    ,`service_information_fstate` STRING
+    ,`service_information_fcreater` STRING
+    ,`service_information_fcreate_time` STRING
+    ,`service_information_fupdater` STRING
+    ,`service_information_fupdate_time` STRING
+
+    ,`service_group_information_fservice_group_name` STRING
+    ,`service_group_information_fdescription_information` STRING
+    ,`service_group_information_fservice_providers` STRING
+    ,`service_group_information_fmail` STRING
+    ,`service_group_information_fstate` STRING
+    ,`service_group_information_fcreater` STRING
+    ,`service_group_information_fcreate_time` STRING
+    ,`service_group_information_fupdater` STRING
+    ,`service_group_information_fupdate_time` STRING
+
+) with (
+  'connector' = 'kafka',
+  'topic' = 'api_proce_log',
+  'properties.bootstrap.servers' = '10.0.4.98:9092,10.0.4.99:9092,10.0.4.100:9092',
+  'properties.group.id' = 'tmp_api_proce_log_source_002',
+  'scan.startup.mode' = 'specific-offsets',
+  'scan.startup.specific-offsets' = 'partition:0,offset:125850000',
+  'format' = 'json'
+);
